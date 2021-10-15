@@ -45,18 +45,30 @@ public class Main {
     public static int tryParse(String text) {
         try { return Integer.parseInt(text); } catch (NumberFormatException e) { return 0; }
     }
-    public static void show_grid(boolean[][][] grid) {
-        String[][] display_grid = new String[Main.grid_size][Main.grid_size];
+    public static String[][][] convert_grid_to_string(boolean[][][] grid) {
+        String[][][] new_grid = new String[Main.grid_size][Main.grid_size][4];
 
+        for (int i = 0; i < Main.grid_size; i++) for (int j = 0; j < Main.grid_size; j++) {
+            for (int k = 0; k < 3; k++)
+                if (grid[i][j][k] == TRUE)
+                    new_grid[i][j][k] = "1";
+                else
+                    new_grid[i][j][k] = "0";
+            new_grid[i][j][3] = "";
+        }
+
+        return new_grid;
+    }
+    public static void show_grid(String[][][] grid) {
         boolean all_bombs_flagged = TRUE;
-        for (int i = 0; i < Main.grid_size; i++) for (int j = 0; j < Main.grid_size; j++) if ((grid[j][i][0] == TRUE)&&(grid[j][i][1] == FALSE)) all_bombs_flagged = FALSE;
+        for (int i = 0; i < Main.grid_size; i++) for (int j = 0; j < Main.grid_size; j++) if ((grid[j][i][0] == "1")&&(grid[j][i][1] == "0")) all_bombs_flagged = FALSE;
 
         boolean bomb_exploded = FALSE;
-        for (int i = 0; i < Main.grid_size; i++) for (int j = 0; j < Main.grid_size; j++) if ((grid[i][j][0] == TRUE)&&(grid[i][j][2]) == TRUE) bomb_exploded = TRUE;
+        for (int i = 0; i < Main.grid_size; i++) for (int j = 0; j < Main.grid_size; j++) if ((grid[i][j][0] == "1")&&(grid[i][j][2]) == "1") bomb_exploded = TRUE;
 
-        for (int i = 0; i < Main.grid_size; i++) for (int j = 0; j < Main.grid_size; j++) if ((bomb_exploded == FALSE)&&(grid[j][i][0] == FALSE)&&(grid[j][i][1] == FALSE)&&(grid[j][i][2])&&(number_of_surrounding_bombs(grid, i, j) > 0)) display_grid[j][i] = Integer.toString(number_of_surrounding_bombs(grid, i, j));
+        for (int i = 0; i < Main.grid_size; i++) for (int j = 0; j < Main.grid_size; j++) if ((bomb_exploded == FALSE)&&(grid[j][i][0] == "0")&&(grid[j][i][1] == "0")&&(grid[j][i][2] == "1")&&(number_of_surrounding_bombs(grid, i, j) > 0)) grid[j][i][3] = Integer.toString(number_of_surrounding_bombs(grid, i, j));
 
-        for (int i = 0; i < Main.grid_size; i++) for (int j = 0; j < Main.grid_size; j++) if ((grid[j][i][0] == TRUE)&&(bomb_exploded)) display_grid[j][i] = "🐳"; else if ((grid[j][i][1] == TRUE)&&(bomb_exploded == FALSE)) display_grid[j][i] = "🚩"; else if ((grid[j][i][2] == TRUE)||(bomb_exploded == TRUE)) display_grid[j][i] = "❌"; else display_grid[j][i] = "🔲";
+        for (int i = 0; i < Main.grid_size; i++) for (int j = 0; j < Main.grid_size; j++) if (grid[j][i][3] == "") if ((grid[j][i][0] == "1")&&(bomb_exploded)) grid[j][i][3] = "🐳"; else if ((grid[j][i][1] == "1")&&(bomb_exploded == FALSE)) grid[j][i][3] = "🚩"; else if ((grid[j][i][2] == "1")||(bomb_exploded == TRUE)) grid[j][i][3] = "❌"; else grid[j][i][3] = "🔲";
 
 
 //        Runtime runtime = Runtime.getRuntime();
@@ -64,17 +76,19 @@ public class Main {
 //        System.exit(0);
 
         if (all_bombs_flagged) System.out.println("well done. You win!"); else {
-            String[] numbers = new String[Main.grid_size];
-            for (int i = 0; i < Main.grid_size; i++) numbers[i] = Integer.toString(i);
-            System.out.println("   " + String.join("  ", numbers));
-            for (int i = 0; i < Main.grid_size; i++) System.out.println(i + " - " + String.join(" ", display_grid[i]));
+            String[] numbers_1 = new String[Main.grid_size];
+            for (int i = 0; i < Main.grid_size; i++) numbers_1[i] = Integer.toString(i);
+            System.out.println("   " + String.join("  ", numbers_1));
+            String[][] values = new String[Main.grid_size][Main.grid_size];
+            for (int i = 0; i < Main.grid_size; i++) for (int j = 0; j < Main.grid_size; j++) values[i][j] = grid[i][j][3];
+            for (int i = 0; i < Main.grid_size; i++) System.out.println(i + " - " + String.join(" ", values[i]));
 
             if (bomb_exploded == TRUE) System.out.println("Game Over!");
         }
     }
-    public static int number_of_surrounding_bombs(boolean[][][] grid, int x, int y) {
+    public static int number_of_surrounding_bombs(String[][][] grid, int x, int y) {
         int bombs = 0;
-        for (int i = x - 1; i <= x + 1; i++) if ((i >= 0)&&(i < Main.grid_size)) for (int j = y - 1; j <= y + 1; j++) if ((j >= 0)&&(j < Main.grid_size)&&(((Object) grid[j][i]).getClass().getSimpleName() == "Boolean[]")&&(grid[j][i][0] == TRUE)) bombs++;
+        for (int i = x - 1; i <= x + 1; i++) if ((i >= 0)&&(i < Main.grid_size)) for (int j = y - 1; j <= y + 1; j++) if ((j >= 0)&&(j < Main.grid_size)&&(((Object) grid[j][i]).getClass().getSimpleName() == "String[]")&&(grid[j][i][0] == "1")) bombs++;
         return bombs;
     }
     public static boolean[][][] open_cell(boolean[][][] grid, int x, int y) {
@@ -87,7 +101,7 @@ public class Main {
         }else {
             grid[y][x][2] = TRUE;
 
-            int surrounding_bombs = number_of_surrounding_bombs(grid, x, y);
+            int surrounding_bombs = number_of_surrounding_bombs(convert_grid_to_string(grid), x, y);
             if (surrounding_bombs == 0) {
                 int _x = -2;
                 boolean[][][] surrounding_cells = get_surrounding_cells(grid, x, y);
@@ -166,10 +180,10 @@ public class Main {
 
 
         print_grid_debug(Main.grid);
-        show_grid(Main.grid);
+        show_grid(convert_grid_to_string(Main.grid));
 
         if (choice == 'f') if (Main.grid[y][x][1] == TRUE) Main.grid[y][x][1] = FALSE; else Main.grid[y][x][1] = TRUE; else Main.grid = open_cell(Main.grid, x, y); // open cell
-        show_grid(Main.grid);
+        show_grid(convert_grid_to_string(Main.grid));
 
         print_grid_debug(Main.grid);
 
