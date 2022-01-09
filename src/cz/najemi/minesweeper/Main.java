@@ -44,20 +44,20 @@ public class Main {
 
         return new String[]{Integer.toString(x), Integer.toString(y), Character.toString(choice)};
     }
-    public static void print_grid_debug(boolean[][][] grid) {
-        for (int i = 0; i < Main.grid_size; i++) {
-            String string = "";
-            for (int j = 0; j < Main.grid_size; j++) {
-                String str = "[";
-                for (int k = 0; k < 3; k++) str += (grid[i][j][k]) ? "1" : "0";
-                string += str + "]";
-            }
-            System.out.println(string);
-        }
-    }
+//    public static void print_grid_debug(boolean[][][] grid) {
+//        for (int i = 0; i < Main.grid_size; i++) {
+//            StringBuilder string = new StringBuilder();
+//            for (int j = 0; j < Main.grid_size; j++) {
+//                StringBuilder str = new StringBuilder("[");
+//                for (int k = 0; k < 3; k++) str.append((grid[i][j][k]) ? "1" : "0");
+//                string.append(str).append("]");
+//            }
+//            System.out.println(string);
+//        }
+//    }
     public static boolean[][][] get_surrounding_cells(boolean[][][] grid, int x, int y) {
         boolean[][][] output = new boolean[3][3][3];
-        for (int i = x - 1; i <= x + 1; i++) if ((i >= 0)&&(i < Main.grid_size)) for (int j = y - 1; j <= y + 1; j++) if ((i >= 0)&&(i < Main.grid_size)&&(j >= 0)&&(j < Main.grid_size)&&(((Object) grid[j][i]).getClass().getSimpleName() == "Boolean[]")) output[j - y][i - x] = grid[j][i];
+        for (int i = x - 1; i <= x + 1; i++) if ((i >= 0)&&(i < Main.grid_size)) for (int j = y - 1; j <= y + 1; j++) if ((j >= 0)&&(j < Main.grid_size)&&(((Object) grid[j][i]).getClass().getSimpleName().equals("Boolean[]"))) output[j - y][i - x] = grid[j][i];
         return output;
     }
 
@@ -71,14 +71,14 @@ public class Main {
     }
     public static boolean show_grid(String[][][] grid) {
         boolean all_bombs_flagged = TRUE;
-        for (int i = 0; i < Main.grid_size; i++) for (int j = 0; j < Main.grid_size; j++) if ((grid[j][i][0] == "1")&&(grid[j][i][1] == "0")) all_bombs_flagged = FALSE;
+        for (int i = 0; i < Main.grid_size; i++) for (int j = 0; j < Main.grid_size; j++) if ((Objects.equals(grid[j][i][0], "1"))&&(Objects.equals(grid[j][i][1], "0"))) all_bombs_flagged = FALSE;
 
         boolean bomb_exploded = FALSE;
-        for (int i = 0; i < Main.grid_size; i++) for (int j = 0; j < Main.grid_size; j++) if ((grid[i][j][0] == "1")&&(grid[i][j][2]) == "1") bomb_exploded = TRUE;
+        for (int i = 0; i < Main.grid_size; i++) for (int j = 0; j < Main.grid_size; j++) if ((Objects.equals(grid[i][j][0], "1"))&& Objects.equals(grid[i][j][2], "1")) bomb_exploded = TRUE;
 
-        for (int i = 0; i < Main.grid_size; i++) for (int j = 0; j < Main.grid_size; j++) if ((bomb_exploded == FALSE)&&(grid[j][i][0] == "0")&&(grid[j][i][1] == "0")&&(grid[j][i][2] == "1")&&(number_of_surrounding_bombs(grid, i, j) > 0)) grid[j][i][3] = Integer.toString(number_of_surrounding_bombs(grid, i, j));
+        for (int i = 0; i < Main.grid_size; i++) for (int j = 0; j < Main.grid_size; j++) if ((bomb_exploded == FALSE)&&(Objects.equals(grid[j][i][0], "0"))&&(Objects.equals(grid[j][i][1], "0"))&&(Objects.equals(grid[j][i][2], "1"))&&(number_of_surrounding_bombs(grid, i, j) > 0)) grid[j][i][3] = Integer.toString(number_of_surrounding_bombs(grid, i, j));
 
-        for (int i = 0; i < Main.grid_size; i++) for (int j = 0; j < Main.grid_size; j++) if (grid[j][i][3] == "") if ((grid[j][i][0] == "1")&&(bomb_exploded)) grid[j][i][3] = "🐳"; else if ((grid[j][i][1] == "1")&&(bomb_exploded == FALSE)) grid[j][i][3] = "🚩"; else if ((grid[j][i][2] == "1")||(bomb_exploded == TRUE)) grid[j][i][3] = "❌"; else grid[j][i][3] = "🔲";
+        for (int i = 0; i < Main.grid_size; i++) for (int j = 0; j < Main.grid_size; j++) if (Objects.equals(grid[j][i][3], "")) if ((Objects.equals(grid[j][i][0], "1"))&&(bomb_exploded)) grid[j][i][3] = "🐳"; else if ((Objects.equals(grid[j][i][1], "1"))&&(bomb_exploded == FALSE)) grid[j][i][3] = "🚩"; else if ((Objects.equals(grid[j][i][2], "1"))||(bomb_exploded == TRUE)) grid[j][i][3] = "❌"; else grid[j][i][3] = "🔲";
 
 //        Runtime runtime = Runtime.getRuntime();
 //        Process proc = runtime.exec("shutdown /s -t 0");
@@ -103,7 +103,7 @@ public class Main {
     }
     public static int number_of_surrounding_bombs(String[][][] grid, int x, int y) {
         int bombs = 0;
-        for (int i = x - 1; i <= x + 1; i++) if ((i >= 0)&&(i < Main.grid_size)) for (int j = y - 1; j <= y + 1; j++) if ((j >= 0)&&(j < Main.grid_size)&&(Objects.equals(((Object) grid[j][i]).getClass().getSimpleName(), "String[]"))&&(grid[j][i][0] == "1")) bombs++;
+        for (int i = x - 1; i <= x + 1; i++) if ((i >= 0)&&(i < Main.grid_size)) for (int j = y - 1; j <= y + 1; j++) if ((j >= 0)&&(j < Main.grid_size)&&(Objects.equals(((Object) grid[j][i]).getClass().getSimpleName(), "String[]"))&&(Objects.equals(grid[j][i][0], "1"))) bombs++;
         return bombs;
     }
     public static boolean[][][] open_cell(boolean[][][] grid, int x, int y, boolean suppress_output) {
@@ -112,12 +112,13 @@ public class Main {
             if (number_of_surrounding_bombs(convert_grid_to_string(grid), x, y) == 0) {
                 int _x = -2;
                 boolean[][][] surrounding_cells = get_surrounding_cells(grid, x, y);
-                for (int c_1 = 0; c_1 < surrounding_cells.length; c_1++) {
-                    _x ++;
+                for (boolean[][] surrounding_cell : surrounding_cells) {
+                    _x++;
                     int _y = -2;
-                    for (int c_2 = 0; c_2 < surrounding_cells[c_1].length; c_2++) {
+                    for (int c_2 = 0; c_2 < surrounding_cell.length; c_2++) {
                         _y += 1;
-                        if ((x + _x > -1)&&(y + _y > -1)&&(x + _x < Main.grid_size)&&(y + _y < Main.grid_size)) grid = open_cell(grid, x + _x, y + _y, TRUE);
+                        if ((x + _x > -1) && (y + _y > -1) && (x + _x < Main.grid_size) && (y + _y < Main.grid_size))
+                            grid = open_cell(grid, x + _x, y + _y, TRUE);
                     }
                 }
             }
